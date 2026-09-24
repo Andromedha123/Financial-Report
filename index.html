@@ -624,8 +624,20 @@ footer{
     </button>
 
     <button class="btn btn-light" onclick="document.getElementById('importFile').click()">
-      📥 Import
+      📥 Import Excel
+    /button>
+
+    <button class="btn btn-green" onclick="downloadTemplateExcel()">
+      📋 Template Excel
     </button>
+
+<input
+  type="file"
+  id="importFile"
+  class="file-input"
+  accept=".xlsx,.xls"
+  onchange="importExcel(event)"
+>
 
     <input
       type="file"
@@ -1278,6 +1290,7 @@ Rp0
 
 <div id="printArea"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <script>
 

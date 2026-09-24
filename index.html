@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -148,9 +149,27 @@ button,input,select,textarea{
   color:var(--text)
 }
 
+.btn-light:hover{
+  background:#f8fafc
+}
+
 .btn-danger{
   background:#fee2e2;
   color:#991b1b
+}
+
+.btn-danger:hover{
+  background:#fecaca
+}
+
+.btn-green{
+  background:#dcfce7;
+  color:#166534;
+  border:1px solid #bbf7d0
+}
+
+.btn-green:hover{
+  background:#bbf7d0
 }
 
 .section{
@@ -338,6 +357,31 @@ th{
   font-weight:800
 }
 
+.save-status{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  font-size:12px;
+  color:var(--muted);
+  margin-top:7px
+}
+
+.save-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#16a34a;
+  display:inline-block
+}
+
+.file-input{
+  display:none
+}
+
+.import-box{
+  display:none
+}
+
 footer{
   text-align:center;
   color:var(--muted);
@@ -471,6 +515,14 @@ footer{
     flex-direction:column
   }
 
+  .actions{
+    width:100%
+  }
+
+  .actions .btn{
+    flex:1
+  }
+
   .field,
   .field.half{
     grid-column:span 12
@@ -552,6 +604,13 @@ footer{
       SPPG • Periode belum diisi
     </p>
 
+    <div class="save-status">
+      <span class="save-dot"></span>
+      <span id="saveStatus">
+        Tersimpan otomatis di browser
+      </span>
+    </div>
+
   </div>
 
   <div class="actions">
@@ -560,9 +619,21 @@ footer{
       💾 Simpan
     </button>
 
-    <button class="btn btn-light" onclick="loadData()">
-      ↻ Muat
+    <button class="btn btn-green" onclick="exportData()">
+      📤 Export
     </button>
+
+    <button class="btn btn-light" onclick="document.getElementById('importFile').click()">
+      📥 Import
+    </button>
+
+    <input
+      type="file"
+      id="importFile"
+      class="file-input"
+      accept=".json,application/json"
+      onchange="importData(event)"
+    >
 
     <button class="btn btn-danger" onclick="resetData()">
       Reset
@@ -604,7 +675,6 @@ footer{
     <small>Saldo Akhir</small>
     <strong id="dashSaldoAkhir">Rp0</strong>
   </div>
-
 
   <div class="card span-8">
 
@@ -649,14 +719,14 @@ footer{
 
   </div>
 
-
   <div class="card span-4">
 
     <h3>Status Data</h3>
 
     <p class="muted">
       Isi seluruh bagian yang relevan.
-      Angka pada dashboard dihitung otomatis.
+      Semua perubahan akan disimpan otomatis
+      ke browser.
     </p>
 
     <br>
@@ -760,7 +830,6 @@ footer{
   type="text"
   inputmode="numeric"
   value="0"
-  oninput="updateAll()"
 >
 
 </div>
@@ -811,10 +880,7 @@ footer{
 
 <br>
 
-<button
-  class="btn btn-light"
-  onclick="addDana()"
->
+<button class="btn btn-light" onclick="addDana()">
 + Tambah Dana Masuk
 </button>
 
@@ -879,10 +945,7 @@ footer{
 
 <br>
 
-<button
-  class="btn btn-light"
-  onclick="addPengeluaran()"
->
+<button class="btn btn-light" onclick="addPengeluaran()">
 + Tambah Pengeluaran
 </button>
 
@@ -912,10 +975,7 @@ footer{
 
 <td>TOTAL</td>
 
-<td
-  class="right"
-  id="categorySummaryTotal"
->
+<td class="right" id="categorySummaryTotal">
 Rp0
 </td>
 
@@ -996,10 +1056,7 @@ Rp0
 
 <br>
 
-<button
-  class="btn btn-light"
-  onclick="addProduksi()"
->
+<button class="btn btn-light" onclick="addProduksi()">
 + Tambah Produksi
 </button>
 
@@ -1045,10 +1102,7 @@ Rp0
 
 <br>
 
-<button
-  class="btn btn-light"
-  onclick="addPersediaan()"
->
+<button class="btn btn-light" onclick="addPersediaan()">
 + Tambah Persediaan
 </button>
 
@@ -1110,10 +1164,7 @@ Rp0
 
 <br>
 
-<button
-  class="btn btn-light"
-  onclick="addAset()"
->
+<button class="btn btn-light" onclick="addAset()">
 + Tambah Aset
 </button>
 
@@ -1144,7 +1195,6 @@ Rp0
   type="text"
   inputmode="numeric"
   value="0"
-  oninput="updateAll()"
 >
 
 </div>
@@ -1160,7 +1210,6 @@ Rp0
   type="text"
   inputmode="numeric"
   value="0"
-  oninput="updateAll()"
 >
 
 </div>
@@ -1231,6 +1280,13 @@ Rp0
 
 
 <script>
+
+/* =========================================================
+   STORAGE
+========================================================= */
+
+const STORAGE_KEY = 'sppgFinancialReport';
+
 
 /* =========================================================
    UTILITIES
@@ -1345,6 +1401,60 @@ function setupMoneyInputs(root=document){
 
 
 /* =========================================================
+   AUTO SAVE
+========================================================= */
+
+let autoSaveTimer = null;
+
+
+function autoSave(){
+
+  clearTimeout(autoSaveTimer);
+
+  autoSaveTimer = setTimeout(() => {
+
+    try{
+
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(getData())
+      );
+
+      setSaveStatus(
+        'Tersimpan otomatis • ' +
+        new Date().toLocaleTimeString('id-ID')
+      );
+
+    }catch(error){
+
+      console.error(
+        'Gagal menyimpan otomatis:',
+        error
+      );
+
+      setSaveStatus(
+        'Gagal menyimpan data'
+      );
+
+    }
+
+  },300);
+
+}
+
+
+function setSaveStatus(text){
+
+  const el = $('saveStatus');
+
+  if(el){
+    el.textContent = text;
+  }
+
+}
+
+
+/* =========================================================
    NAVIGATION
 ========================================================= */
 
@@ -1417,14 +1527,14 @@ function addDana(data={}){
       <input
         class="table-input d-date"
         type="date"
-        value="${data.date || ''}"
+        value="${esc(data.date || '')}"
       >
     </td>
 
     <td>
       <input
         class="table-input d-desc"
-        value="${data.desc || ''}"
+        value="${esc(data.desc || '')}"
         placeholder="Dana masuk"
       >
     </td>
@@ -1435,7 +1545,6 @@ function addDana(data={}){
         type="text"
         inputmode="numeric"
         value="${data.nominal || 0}"
-        oninput="updateAll()"
       >
     </td>
 
@@ -1473,7 +1582,7 @@ function addPengeluaran(data={}){
       <input
         class="table-input p-date"
         type="date"
-        value="${data.date || ''}"
+        value="${esc(data.date || '')}"
       >
     </td>
 
@@ -1513,7 +1622,7 @@ function addPengeluaran(data={}){
 
       <input
         class="table-input p-desc"
-        value="${data.desc || ''}"
+        value="${esc(data.desc || '')}"
         placeholder="Uraian"
       >
 
@@ -1523,7 +1632,7 @@ function addPengeluaran(data={}){
 
       <input
         class="table-input p-supplier"
-        value="${data.supplier || ''}"
+        value="${esc(data.supplier || '')}"
         placeholder="Supplier/Penerima"
       >
 
@@ -1536,7 +1645,6 @@ function addPengeluaran(data={}){
         type="text"
         inputmode="numeric"
         value="${data.nominal || 0}"
-        oninput="updateAll()"
       >
 
     </td>
@@ -1545,7 +1653,7 @@ function addPengeluaran(data={}){
 
       <input
         class="table-input p-proof"
-        value="${data.proof || ''}"
+        value="${esc(data.proof || '')}"
         placeholder="No. bukti"
       >
 
@@ -1589,7 +1697,7 @@ function addProduksi(data={}){
       <input
         class="table-input pr-date"
         type="date"
-        value="${data.date || ''}"
+        value="${esc(data.date || '')}"
       >
 
     </td>
@@ -1598,7 +1706,7 @@ function addProduksi(data={}){
 
       <input
         class="table-input pr-menu"
-        value="${data.menu || ''}"
+        value="${esc(data.menu || '')}"
         placeholder="Menu"
       >
 
@@ -1610,7 +1718,6 @@ function addProduksi(data={}){
         class="table-input pr-porsi"
         type="number"
         value="${data.porsi || 0}"
-        oninput="updateAll()"
       >
 
     </td>
@@ -1622,7 +1729,6 @@ function addProduksi(data={}){
         type="text"
         inputmode="numeric"
         value="${data.biaya || 0}"
-        oninput="updateAll()"
       >
 
     </td>
@@ -1635,7 +1741,7 @@ function addProduksi(data={}){
 
       <input
         class="table-input pr-catatan"
-        value="${data.catatan || ''}"
+        value="${esc(data.catatan || '')}"
       >
 
     </td>
@@ -1677,7 +1783,7 @@ function addPersediaan(data={}){
 
       <input
         class="table-input s-name"
-        value="${data.name || ''}"
+        value="${esc(data.name || '')}"
       >
 
     </td>
@@ -1686,7 +1792,7 @@ function addPersediaan(data={}){
 
       <input
         class="table-input s-unit"
-        value="${data.unit || ''}"
+        value="${esc(data.unit || '')}"
       >
 
     </td>
@@ -1697,7 +1803,6 @@ function addPersediaan(data={}){
         class="table-input s-awal"
         type="number"
         value="${data.awal || 0}"
-        oninput="updateAll()"
       >
 
     </td>
@@ -1708,7 +1813,6 @@ function addPersediaan(data={}){
         class="table-input s-beli"
         type="number"
         value="${data.beli || 0}"
-        oninput="updateAll()"
       >
 
     </td>
@@ -1719,7 +1823,6 @@ function addPersediaan(data={}){
         class="table-input s-pakai"
         type="number"
         value="${data.pakai || 0}"
-        oninput="updateAll()"
       >
 
     </td>
@@ -1732,7 +1835,7 @@ function addPersediaan(data={}){
 
       <input
         class="table-input s-catatan"
-        value="${data.catatan || ''}"
+        value="${esc(data.catatan || '')}"
       >
 
     </td>
@@ -1750,8 +1853,7 @@ function addPersediaan(data={}){
 
   `;
 
-  $('persediaanBody')
-  .appendChild(tr);
+  $('persediaanBody').appendChild(tr);
 
   updateAll();
 
@@ -1772,7 +1874,7 @@ function addAset(data={}){
 
       <input
         class="table-input a-name"
-        value="${data.name || ''}"
+        value="${esc(data.name || '')}"
       >
 
     </td>
@@ -1782,7 +1884,7 @@ function addAset(data={}){
       <input
         class="table-input a-date"
         type="date"
-        value="${data.date || ''}"
+        value="${esc(data.date || '')}"
       >
 
     </td>
@@ -1794,7 +1896,6 @@ function addAset(data={}){
         type="text"
         inputmode="numeric"
         value="${data.value || 0}"
-        oninput="updateAll()"
       >
 
     </td>
@@ -1803,7 +1904,7 @@ function addAset(data={}){
 
       <select class="table-input a-cond">
 
-        <option>
+        <option ${data.cond==='Baik' || !data.cond ? 'selected':''}>
           Baik
         </option>
 
@@ -1823,7 +1924,7 @@ function addAset(data={}){
 
       <input
         class="table-input a-loc"
-        value="${data.loc || ''}"
+        value="${esc(data.loc || '')}"
       >
 
     </td>
@@ -1841,8 +1942,7 @@ function addAset(data={}){
 
   `;
 
-  $('asetBody')
-  .appendChild(tr);
+  $('asetBody').appendChild(tr);
 
   setupMoneyInputs(tr);
 
@@ -1857,33 +1957,23 @@ function addAset(data={}){
 
 function updateAll(){
 
-  /* DANA */
-
   let dana = 0;
 
   document
   .querySelectorAll('.d-nominal')
   .forEach(x => {
-
     dana += num(x.value);
-
   });
 
-
-  /* PENGELUARAN */
 
   let peng = 0;
 
   document
   .querySelectorAll('.p-nominal')
   .forEach(x => {
-
     peng += num(x.value);
-
   });
 
-
-  /* PRODUKSI */
 
   let porsi = 0;
 
@@ -1924,8 +2014,6 @@ function updateAll(){
   });
 
 
-  /* PERSEDIAAN */
-
   document
   .querySelectorAll('#persediaanBody tr')
   .forEach(tr => {
@@ -1952,29 +2040,21 @@ function updateAll(){
       tr.querySelector('.s-akhir');
 
     if(el){
-
       el.textContent =
         akhir.toLocaleString('id-ID');
-
     }
 
   });
 
-
-  /* ASET */
 
   let aset = 0;
 
   document
   .querySelectorAll('.a-value')
   .forEach(x => {
-
     aset += num(x.value);
-
   });
 
-
-  /* SALDO */
 
   const awal =
     num(
@@ -1987,16 +2067,12 @@ function updateAll(){
     peng;
 
 
-  /* TOTAL */
-
   $('totalDanaMasuk').textContent =
     rupiah(dana);
 
   $('totalPengeluaran').textContent =
     rupiah(peng);
 
-
-  /* CATEGORY */
 
   const cats = {};
 
@@ -2044,8 +2120,6 @@ function updateAll(){
     rupiah(peng);
 
 
-  /* PRODUKSI */
-
   $('totalPorsi').textContent =
     porsi.toLocaleString('id-ID');
 
@@ -2060,13 +2134,9 @@ function updateAll(){
     );
 
 
-  /* ASET */
-
   $('totalAset').textContent =
     rupiah(aset);
 
-
-  /* DASHBOARD */
 
   $('dashSaldoAwal').textContent =
     rupiah(awal);
@@ -2094,8 +2164,6 @@ function updateAll(){
     );
 
 
-  /* HARI PRODUKSI */
-
   const tanggalProduksi =
     [
       ...document.querySelectorAll('.pr-date')
@@ -2107,8 +2175,6 @@ function updateAll(){
     new Set(tanggalProduksi).size;
 
 
-  /* BANK */
-
   $('dashBank').textContent =
     rupiah(
       num(
@@ -2116,8 +2182,6 @@ function updateAll(){
       )
     );
 
-
-  /* SELISIH BANK */
 
   const saldoBuku =
     num(
@@ -2135,8 +2199,6 @@ function updateAll(){
     );
 
 
-  /* PERIOD LABEL */
-
   $('periodLabel').textContent =
     ($('namaSPPG').value || 'SPPG')
     +
@@ -2147,6 +2209,17 @@ function updateAll(){
       ||
       'Periode belum diisi'
     );
+
+
+  /*
+    SIMPAN OTOMATIS
+    Setiap perubahan data akan
+    disimpan ke localStorage.
+  */
+
+  if(!window.isLoadingData){
+    autoSave();
+  }
 
 }
 
@@ -2181,6 +2254,11 @@ function serializeRows(selector,fields){
 function getData(){
 
   return {
+
+    version:'1.0',
+
+    savedAt:
+      new Date().toISOString(),
 
     info:{
 
@@ -2288,155 +2366,496 @@ function getData(){
 
 
 /* =========================================================
-   SAVE
+   MANUAL SAVE
 ========================================================= */
 
 function saveData(){
 
-  localStorage.setItem(
-    'sppgFinancialReport',
-    JSON.stringify(getData())
-  );
+  try{
 
-  alert(
-    'Data berhasil disimpan di browser.'
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(getData())
+    );
+
+    setSaveStatus(
+      'Data berhasil disimpan • ' +
+      new Date().toLocaleTimeString('id-ID')
+    );
+
+    alert(
+      'Data berhasil disimpan di browser.'
+    );
+
+  }catch(error){
+
+    console.error(error);
+
+    alert(
+      'Gagal menyimpan data.'
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   LOAD DATA
+========================================================= */
+
+function loadData(){
+
+  const raw =
+    localStorage.getItem(
+      STORAGE_KEY
+    );
+
+  if(!raw){
+
+    return false;
+
+  }
+
+
+  let d;
+
+  try{
+
+    d = JSON.parse(raw);
+
+  }catch(error){
+
+    console.error(error);
+
+    alert(
+      'Data tersimpan rusak atau tidak dapat dibaca.'
+    );
+
+    return false;
+
+  }
+
+
+  window.isLoadingData = true;
+
+
+  try{
+
+    for(
+      const [k,v]
+      of Object.entries(d.info || {})
+    ){
+
+      if($(k)){
+        $(k).value = v || '';
+      }
+
+    }
+
+
+    $('saldoAwal').value =
+      d.saldoAwal || 0;
+
+    $('saldoBuku').value =
+      d.saldoBuku || 0;
+
+    $('saldoBank').value =
+      d.saldoBank || 0;
+
+    $('penjelasanSelisih').value =
+      d.penjelasanSelisih || '';
+
+
+    [
+      'danaBody',
+      'pengeluaranBody',
+      'produksiBody',
+      'persediaanBody',
+      'asetBody'
+    ]
+    .forEach(id => {
+
+      $(id).innerHTML = '';
+
+    });
+
+
+    (d.dana || [])
+    .forEach(x =>
+      addDana({
+        date:x['d-date'],
+        desc:x['d-desc'],
+        nominal:x['d-nominal']
+      })
+    );
+
+
+    (d.pengeluaran || [])
+    .forEach(x =>
+      addPengeluaran({
+        date:x['p-date'],
+        cat:x['p-cat'],
+        desc:x['p-desc'],
+        supplier:x['p-supplier'],
+        nominal:x['p-nominal'],
+        proof:x['p-proof']
+      })
+    );
+
+
+    (d.produksi || [])
+    .forEach(x =>
+      addProduksi({
+        date:x['pr-date'],
+        menu:x['pr-menu'],
+        porsi:x['pr-porsi'],
+        biaya:x['pr-biaya'],
+        catatan:x['pr-catatan']
+      })
+    );
+
+
+    (d.persediaan || [])
+    .forEach(x =>
+      addPersediaan({
+        name:x['s-name'],
+        unit:x['s-unit'],
+        awal:x['s-awal'],
+        beli:x['s-beli'],
+        pakai:x['s-pakai'],
+        catatan:x['s-catatan']
+      })
+    );
+
+
+    (d.aset || [])
+    .forEach(x =>
+      addAset({
+        name:x['a-name'],
+        date:x['a-date'],
+        value:x['a-value'],
+        cond:x['a-cond'],
+        loc:x['a-loc']
+      })
+    );
+
+
+    setupMoneyInputs();
+
+    updateAll();
+
+    setSaveStatus(
+      'Data tersimpan dari browser'
+    );
+
+    return true;
+
+  }finally{
+
+    window.isLoadingData = false;
+
+  }
+
+}
+
+
+/* =========================================================
+   EXPORT DATA JSON
+========================================================= */
+
+function exportData(){
+
+  updateAll();
+
+  const data =
+    getData();
+
+  const json =
+    JSON.stringify(
+      data,
+      null,
+      2
+    );
+
+
+  const blob =
+    new Blob(
+      [json],
+      {
+        type:'application/json'
+      }
+    );
+
+
+  const url =
+    URL.createObjectURL(blob);
+
+
+  const a =
+    document.createElement('a');
+
+
+  const nama =
+    (
+      $('namaSPPG').value
+      ||
+      'SPPG'
+    )
+    .replace(
+      /[^a-z0-9]+/gi,
+      '_'
+    );
+
+
+  const periode =
+    (
+      $('periode').value
+      ||
+      'Laporan'
+    )
+    .replace(
+      /[^a-z0-9]+/gi,
+      '_'
+    );
+
+
+  a.href = url;
+
+  a.download =
+    `Laporan_Keuangan_${nama}_${periode}.json`;
+
+  document.body.appendChild(a);
+
+  a.click();
+
+  a.remove();
+
+  URL.revokeObjectURL(url);
+
+
+  setSaveStatus(
+    'Data berhasil di-export'
   );
 
 }
 
 
 /* =========================================================
-   LOAD
+   IMPORT DATA JSON
 ========================================================= */
 
-function loadData(){
+function importData(event){
 
-  const d =
-    JSON.parse(
-      localStorage.getItem(
-        'sppgFinancialReport'
-      ) || 'null'
-    );
+  const file =
+    event.target.files?.[0];
 
 
-  if(!d){
-
-    alert(
-      'Belum ada data tersimpan.'
-    );
-
+  if(!file){
     return;
-
   }
 
 
-  for(
-    const [k,v]
-    of Object.entries(d.info || {})
-  ){
+  const reader =
+    new FileReader();
 
-    if($(k)){
-      $(k).value = v;
+
+  reader.onload =
+    function(e){
+
+      try{
+
+        const data =
+          JSON.parse(
+            e.target.result
+          );
+
+
+        if(
+          !data ||
+          typeof data !== 'object'
+        ){
+          throw new Error(
+            'Format file tidak valid'
+          );
+        }
+
+
+        if(
+          !confirm(
+            'Import akan mengganti data yang sedang tampil. Lanjutkan?'
+          )
+        ){
+
+          event.target.value = '';
+
+          return;
+
+        }
+
+
+        importObject(data);
+
+
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify(
+            getData()
+          )
+        );
+
+
+        alert(
+          'Data berhasil di-import.'
+        );
+
+
+        setSaveStatus(
+          'Data hasil import tersimpan otomatis'
+        );
+
+
+      }catch(error){
+
+        console.error(error);
+
+        alert(
+          'Gagal import data.\n\n' +
+          'Pastikan file yang dipilih adalah file JSON dari website ini.'
+        );
+
+      }
+
+
+      event.target.value = '';
+
+    };
+
+
+  reader.readAsText(file);
+
+}
+
+
+/* =========================================================
+   IMPORT OBJECT
+========================================================= */
+
+function importObject(d){
+
+  window.isLoadingData = true;
+
+
+  try{
+
+    for(
+      const [k,v]
+      of Object.entries(d.info || {})
+    ){
+
+      if($(k)){
+        $(k).value = v || '';
+      }
+
     }
 
+
+    $('saldoAwal').value =
+      d.saldoAwal || 0;
+
+    $('saldoBuku').value =
+      d.saldoBuku || 0;
+
+    $('saldoBank').value =
+      d.saldoBank || 0;
+
+    $('penjelasanSelisih').value =
+      d.penjelasanSelisih || '';
+
+
+    [
+      'danaBody',
+      'pengeluaranBody',
+      'produksiBody',
+      'persediaanBody',
+      'asetBody'
+    ]
+    .forEach(id => {
+
+      $(id).innerHTML = '';
+
+    });
+
+
+    (d.dana || [])
+    .forEach(x =>
+      addDana({
+        date:x['d-date'],
+        desc:x['d-desc'],
+        nominal:x['d-nominal']
+      })
+    );
+
+
+    (d.pengeluaran || [])
+    .forEach(x =>
+      addPengeluaran({
+        date:x['p-date'],
+        cat:x['p-cat'],
+        desc:x['p-desc'],
+        supplier:x['p-supplier'],
+        nominal:x['p-nominal'],
+        proof:x['p-proof']
+      })
+    );
+
+
+    (d.produksi || [])
+    .forEach(x =>
+      addProduksi({
+        date:x['pr-date'],
+        menu:x['pr-menu'],
+        porsi:x['pr-porsi'],
+        biaya:x['pr-biaya'],
+        catatan:x['pr-catatan']
+      })
+    );
+
+
+    (d.persediaan || [])
+    .forEach(x =>
+      addPersediaan({
+        name:x['s-name'],
+        unit:x['s-unit'],
+        awal:x['s-awal'],
+        beli:x['s-beli'],
+        pakai:x['s-pakai'],
+        catatan:x['s-catatan']
+      })
+    );
+
+
+    (d.aset || [])
+    .forEach(x =>
+      addAset({
+        name:x['a-name'],
+        date:x['a-date'],
+        value:x['a-value'],
+        cond:x['a-cond'],
+        loc:x['a-loc']
+      })
+    );
+
+
+    setupMoneyInputs();
+
+    updateAll();
+
+  }finally{
+
+    window.isLoadingData = false;
+
   }
-
-
-  $('saldoAwal').value =
-    d.saldoAwal || 0;
-
-  $('saldoBuku').value =
-    d.saldoBuku || 0;
-
-  $('saldoBank').value =
-    d.saldoBank || 0;
-
-  $('penjelasanSelisih').value =
-    d.penjelasanSelisih || '';
-
-
-  [
-    'danaBody',
-    'pengeluaranBody',
-    'produksiBody',
-    'persediaanBody',
-    'asetBody'
-  ]
-  .forEach(id => {
-
-    $(id).innerHTML = '';
-
-  });
-
-
-  (d.dana || [])
-  .forEach(x =>
-    addDana({
-      date:x['d-date'],
-      desc:x['d-desc'],
-      nominal:x['d-nominal']
-    })
-  );
-
-
-  (d.pengeluaran || [])
-  .forEach(x =>
-    addPengeluaran({
-      date:x['p-date'],
-      cat:x['p-cat'],
-      desc:x['p-desc'],
-      supplier:x['p-supplier'],
-      nominal:x['p-nominal'],
-      proof:x['p-proof']
-    })
-  );
-
-
-  (d.produksi || [])
-  .forEach(x =>
-    addProduksi({
-      date:x['pr-date'],
-      menu:x['pr-menu'],
-      porsi:x['pr-porsi'],
-      biaya:x['pr-biaya'],
-      catatan:x['pr-catatan']
-    })
-  );
-
-
-  (d.persediaan || [])
-  .forEach(x =>
-    addPersediaan({
-      name:x['s-name'],
-      unit:x['s-unit'],
-      awal:x['s-awal'],
-      beli:x['s-beli'],
-      pakai:x['s-pakai'],
-      catatan:x['s-catatan']
-    })
-  );
-
-
-  (d.aset || [])
-  .forEach(x =>
-    addAset({
-      name:x['a-name'],
-      date:x['a-date'],
-      value:x['a-value'],
-      cond:x['a-cond'],
-      loc:x['a-loc']
-    })
-  );
-
-
-  setupMoneyInputs();
-
-  updateAll();
-
-
-  alert(
-    'Data berhasil dimuat.'
-  );
 
 }
 
@@ -2449,15 +2868,17 @@ function resetData(){
 
   if(
     !confirm(
-      'Hapus seluruh data laporan?'
+      'Hapus seluruh data laporan? Data browser dan tampilan akan dikosongkan.'
     )
   ){
     return;
   }
 
+
   localStorage.removeItem(
-    'sppgFinancialReport'
+    STORAGE_KEY
   );
+
 
   location.reload();
 
@@ -2578,29 +2999,13 @@ function tableHTML(
 
 function generatePDF(){
 
-  /*
-    Pastikan seluruh nilai dihitung
-    sebelum PDF dibuat.
-  */
-
   updateAll();
-
-
-  /*
-    Ambil SATU sumber data.
-    PDF tidak lagi mengambil nilai
-    dari DOM secara terpisah.
-  */
 
   const d = getData();
 
   const info =
     d.info || {};
 
-
-  /* =========================
-     DATA DANA
-  ========================= */
 
   const saldoAwal =
     num(d.saldoAwal);
@@ -2621,10 +3026,6 @@ function generatePDF(){
 
     }));
 
-
-  /* =========================
-     DATA PENGELUARAN
-  ========================= */
 
   const pengeluaranRowsData =
     (d.pengeluaran || [])
@@ -2651,10 +3052,6 @@ function generatePDF(){
     }));
 
 
-  /* =========================
-     DATA PRODUKSI
-  ========================= */
-
   const produksiRowsData =
     (d.produksi || [])
     .map(x => ({
@@ -2676,10 +3073,6 @@ function generatePDF(){
 
     }));
 
-
-  /* =========================
-     DATA PERSEDIAAN
-  ========================= */
 
   const persediaanRowsData =
     (d.persediaan || [])
@@ -2706,10 +3099,6 @@ function generatePDF(){
     }));
 
 
-  /* =========================
-     DATA ASET
-  ========================= */
-
   const asetRowsData =
     (d.aset || [])
     .map(x => ({
@@ -2731,10 +3120,6 @@ function generatePDF(){
 
     }));
 
-
-  /* =========================
-     TOTAL
-  ========================= */
 
   const totalDana =
     danaRowsData.reduce(
@@ -2788,10 +3173,6 @@ function generatePDF(){
       : 0;
 
 
-  /* =========================
-     REKONSILIASI
-  ========================= */
-
   const saldoBuku =
     num(d.saldoBuku);
 
@@ -2801,10 +3182,6 @@ function generatePDF(){
   const selisihBank =
     saldoBank - saldoBuku;
 
-
-  /* =========================
-     FORMAT ROW DANA
-  ========================= */
 
   const danaRows =
     danaRowsData
@@ -2818,10 +3195,6 @@ function generatePDF(){
 
     ]);
 
-
-  /* =========================
-     FORMAT ROW PENGELUARAN
-  ========================= */
 
   const pengRows =
     pengeluaranRowsData
@@ -2841,10 +3214,6 @@ function generatePDF(){
 
     ]);
 
-
-  /* =========================
-     FORMAT ROW PRODUKSI
-  ========================= */
 
   const prodRows =
     produksiRowsData
@@ -2867,10 +3236,6 @@ function generatePDF(){
 
     ]);
 
-
-  /* =========================
-     FORMAT ROW PERSEDIAAN
-  ========================= */
 
   const persRows =
     persediaanRowsData
@@ -2905,10 +3270,6 @@ function generatePDF(){
     });
 
 
-  /* =========================
-     FORMAT ROW ASET
-  ========================= */
-
   const asetRows =
     asetRowsData
     .map(row => [
@@ -2925,10 +3286,6 @@ function generatePDF(){
 
     ]);
 
-
-  /* =========================
-     PRINT AREA
-  ========================= */
 
   $('printArea').innerHTML = `
 
@@ -2965,8 +3322,6 @@ function generatePDF(){
 
     </div>
 
-
-    <!-- A -->
 
     <div class="pdf-section">
 
@@ -3021,8 +3376,6 @@ function generatePDF(){
     </div>
 
 
-    <!-- B -->
-
     <div class="pdf-section">
 
       <h3>
@@ -3060,8 +3413,6 @@ function generatePDF(){
     </div>
 
 
-    <!-- C -->
-
     <div class="pdf-section">
 
       <h3>
@@ -3086,8 +3437,6 @@ function generatePDF(){
 
     </div>
 
-
-    <!-- D -->
 
     <div class="pdf-section">
 
@@ -3116,8 +3465,6 @@ function generatePDF(){
 
     </div>
 
-
-    <!-- E -->
 
     <div class="pdf-section">
 
@@ -3167,8 +3514,6 @@ function generatePDF(){
     </div>
 
 
-    <!-- F -->
-
     <div class="pdf-section">
 
       <h3>
@@ -3192,8 +3537,6 @@ function generatePDF(){
 
     </div>
 
-
-    <!-- G -->
 
     <div class="pdf-section">
 
@@ -3221,8 +3564,6 @@ function generatePDF(){
 
     </div>
 
-
-    <!-- H -->
 
     <div class="pdf-section">
 
@@ -3273,8 +3614,6 @@ function generatePDF(){
     </div>
 
 
-    <!-- I -->
-
     <div class="pdf-section">
 
       <h3>
@@ -3301,8 +3640,6 @@ function generatePDF(){
 
     </div>
 
-
-    <!-- SIGNATURE -->
 
     <div class="signature">
 
@@ -3408,10 +3745,6 @@ const localDate =
     ).padStart(2,'0');
 
 
-$('tanggalLaporan').value =
-  localDate;
-
-
 /* =========================================================
    EVENT LISTENERS
 ========================================================= */
@@ -3422,6 +3755,7 @@ $('tanggalLaporan').value =
   'periode',
   'penanggungJawab',
   'jabatan',
+  'tanggalLaporan',
   'catatanUmum',
   'saldoAwal',
   'saldoBuku',
@@ -3440,27 +3774,100 @@ $('tanggalLaporan').value =
 });
 
 
+/*
+  Untuk select dan input dinamis,
+  gunakan event delegation.
+*/
+
+document.addEventListener(
+  'input',
+  () => {
+
+    updateAll();
+
+  }
+);
+
+document.addEventListener(
+  'change',
+  () => {
+
+    updateAll();
+
+  }
+);
+
+
 /* =========================================================
    INITIALIZATION
 ========================================================= */
 
-setupMoneyInputs();
-
-addDana();
-
-addPengeluaran();
-
-addProduksi();
-
-addPersediaan();
-
-addAset();
+window.isLoadingData = true;
 
 setupMoneyInputs();
 
-updateAll();
+
+const hasSavedData =
+  !!localStorage.getItem(
+    STORAGE_KEY
+  );
+
+
+if(hasSavedData){
+
+  loadData();
+
+}else{
+
+  $('tanggalLaporan').value =
+    localDate;
+
+  addDana();
+
+  addPengeluaran();
+
+  addProduksi();
+
+  addPersediaan();
+
+  addAset();
+
+  setupMoneyInputs();
+
+  updateAll();
+
+}
+
+
+window.isLoadingData = false;
+
+
+/* =========================================================
+   AUTO SAVE BEFORE LEAVING
+========================================================= */
+
+window.addEventListener(
+  'beforeunload',
+  () => {
+
+    try{
+
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(getData())
+      );
+
+    }catch(error){
+
+      console.error(error);
+
+    }
+
+  }
+);
 
 </script>
 
 </body>
 </html>
+```

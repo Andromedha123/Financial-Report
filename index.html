@@ -1,0 +1,3466 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laporan Keuangan SPPG</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0
+}
+
+:root{
+  --primary:#2563eb;
+  --primary-dark:#1d4ed8;
+  --bg:#f4f7fb;
+  --card:#fff;
+  --text:#172033;
+  --muted:#64748b;
+  --border:#e2e8f0;
+  --green:#16a34a;
+  --red:#dc2626;
+  --orange:#ea580c;
+}
+
+body{
+  font-family:Inter,Arial,Helvetica,sans-serif;
+  background:var(--bg);
+  color:var(--text)
+}
+
+button,input,select,textarea{
+  font:inherit
+}
+
+.app{
+  display:flex;
+  min-height:100vh
+}
+
+.sidebar{
+  width:255px;
+  background:#0f172a;
+  color:#fff;
+  padding:24px 16px;
+  position:fixed;
+  left:0;
+  top:0;
+  bottom:0;
+  overflow:auto
+}
+
+.brand{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  padding:4px 8px 26px
+}
+
+.logo{
+  width:42px;
+  height:42px;
+  border-radius:12px;
+  background:#2563eb;
+  display:grid;
+  place-items:center;
+  font-weight:800;
+  font-size:20px
+}
+
+.brand h1{
+  font-size:16px
+}
+
+.brand small{
+  color:#94a3b8
+}
+
+.nav button{
+  width:100%;
+  border:0;
+  background:transparent;
+  color:#cbd5e1;
+  padding:12px;
+  border-radius:10px;
+  text-align:left;
+  cursor:pointer;
+  margin-bottom:5px
+}
+
+.nav button:hover,
+.nav button.active{
+  background:#1e293b;
+  color:#fff
+}
+
+.main{
+  margin-left:255px;
+  width:calc(100% - 255px);
+  padding:28px
+}
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  align-items:center;
+  margin-bottom:24px
+}
+
+.topbar h2{
+  font-size:25px
+}
+
+.topbar p{
+  color:var(--muted);
+  margin-top:5px
+}
+
+.actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap
+}
+
+.btn{
+  border:0;
+  border-radius:9px;
+  padding:10px 15px;
+  cursor:pointer;
+  font-weight:700
+}
+
+.btn-primary{
+  background:var(--primary);
+  color:white
+}
+
+.btn-primary:hover{
+  background:var(--primary-dark)
+}
+
+.btn-light{
+  background:#fff;
+  border:1px solid var(--border);
+  color:var(--text)
+}
+
+.btn-danger{
+  background:#fee2e2;
+  color:#991b1b
+}
+
+.section{
+  display:none
+}
+
+.section.active{
+  display:block
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(12,1fr);
+  gap:16px
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:15px;
+  padding:20px;
+  box-shadow:0 2px 8px rgba(15,23,42,.04)
+}
+
+.card h3{
+  font-size:17px;
+  margin-bottom:15px
+}
+
+.span-12{
+  grid-column:span 12
+}
+
+.span-8{
+  grid-column:span 8
+}
+
+.span-6{
+  grid-column:span 6
+}
+
+.span-4{
+  grid-column:span 4
+}
+
+.span-3{
+  grid-column:span 3
+}
+
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(12,1fr);
+  gap:14px
+}
+
+.field{
+  grid-column:span 4
+}
+
+.field.full{
+  grid-column:span 12
+}
+
+.field.half{
+  grid-column:span 6
+}
+
+label{
+  display:block;
+  font-size:13px;
+  font-weight:700;
+  margin-bottom:6px;
+  color:#334155
+}
+
+input,
+select,
+textarea{
+  width:100%;
+  padding:10px 11px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  background:#fff;
+  outline:none
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+  border-color:#93c5fd;
+  box-shadow:0 0 0 3px #dbeafe
+}
+
+textarea{
+  min-height:90px;
+  resize:vertical
+}
+
+.stat{
+  padding:17px;
+  border:1px solid var(--border);
+  border-radius:13px;
+  background:#fff
+}
+
+.stat small{
+  color:var(--muted)
+}
+
+.stat strong{
+  display:block;
+  font-size:22px;
+  margin-top:7px
+}
+
+.stat.green{
+  border-left:4px solid var(--green)
+}
+
+.stat.blue{
+  border-left:4px solid var(--primary)
+}
+
+.stat.orange{
+  border-left:4px solid var(--orange)
+}
+
+.stat.red{
+  border-left:4px solid var(--red)
+}
+
+table{
+  width:100%;
+  border-collapse:collapse
+}
+
+th,
+td{
+  padding:10px 9px;
+  border-bottom:1px solid var(--border);
+  font-size:13px;
+  text-align:left;
+  vertical-align:middle
+}
+
+th{
+  background:#f8fafc;
+  color:#475569
+}
+
+.table-wrap{
+  overflow:auto
+}
+
+.table-input{
+  min-width:120px
+}
+
+.total-row td{
+  font-weight:800;
+  background:#f8fafc
+}
+
+.right{
+  text-align:right
+}
+
+.muted{
+  color:var(--muted)
+}
+
+.empty{
+  text-align:center;
+  padding:25px;
+  color:var(--muted)
+}
+
+.badge{
+  display:inline-block;
+  padding:5px 8px;
+  border-radius:999px;
+  background:#dbeafe;
+  color:#1d4ed8;
+  font-size:11px;
+  font-weight:800
+}
+
+footer{
+  text-align:center;
+  color:var(--muted);
+  font-size:12px;
+  padding:25px
+}
+
+/* =========================
+   PRINT / PDF
+========================= */
+
+#printArea{
+  display:none
+}
+
+@media print{
+
+  @page{
+    size:A4;
+    margin:14mm
+  }
+
+  body{
+    background:white
+  }
+
+  .app,
+  footer{
+    display:none!important
+  }
+
+  #printArea{
+    display:block!important;
+    color:#111;
+    font-family:Arial,sans-serif
+  }
+
+  .pdf-header{
+    text-align:center;
+    border-bottom:2px solid #111;
+    padding-bottom:12px;
+    margin-bottom:16px
+  }
+
+  .pdf-header h1{
+    font-size:20px
+  }
+
+  .pdf-header h2{
+    font-size:15px;
+    margin-top:5px
+  }
+
+  .pdf-section{
+    margin-top:18px;
+    page-break-inside:avoid
+  }
+
+  .pdf-section h3{
+    font-size:14px;
+    border-bottom:1px solid #333;
+    padding-bottom:5px;
+    margin-bottom:8px
+  }
+
+  #printArea table{
+    font-size:10px
+  }
+
+  #printArea th,
+  #printArea td{
+    padding:5px;
+    border:1px solid #aaa
+  }
+
+  .signature{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:40px;
+    margin-top:45px;
+    text-align:center
+  }
+}
+
+@media(max-width:1000px){
+
+  .sidebar{
+    width:210px
+  }
+
+  .main{
+    margin-left:210px;
+    width:calc(100% - 210px)
+  }
+
+  .span-3{
+    grid-column:span 6
+  }
+
+  .span-4,
+  .span-6,
+  .span-8{
+    grid-column:span 12
+  }
+
+  .field{
+    grid-column:span 6
+  }
+}
+
+@media(max-width:700px){
+
+  .sidebar{
+    position:relative;
+    width:100%;
+    height:auto
+  }
+
+  .app{
+    display:block
+  }
+
+  .main{
+    margin:0;
+    width:100%;
+    padding:15px
+  }
+
+  .topbar{
+    align-items:flex-start;
+    flex-direction:column
+  }
+
+  .field,
+  .field.half{
+    grid-column:span 12
+  }
+
+  .span-3{
+    grid-column:span 12
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<aside class="sidebar">
+
+  <div class="brand">
+    <div class="logo">SP</div>
+
+    <div>
+      <h1>SPPG Report</h1>
+      <small>Financial Report</small>
+    </div>
+  </div>
+
+  <div class="nav">
+
+    <button class="active" data-section="dashboard">
+      📊 Dashboard
+    </button>
+
+    <button data-section="informasi">
+      🏢 Informasi SPPG
+    </button>
+
+    <button data-section="dana">
+      💰 Dana
+    </button>
+
+    <button data-section="pengeluaran">
+      🧾 Pengeluaran
+    </button>
+
+    <button data-section="produksi">
+      🍱 Produksi
+    </button>
+
+    <button data-section="persediaan">
+      📦 Persediaan
+    </button>
+
+    <button data-section="aset">
+      🏗️ Aset
+    </button>
+
+    <button data-section="rekonsiliasi">
+      🏦 Rekonsiliasi Bank
+    </button>
+
+    <button data-section="catatan">
+      📝 Catatan
+    </button>
+
+  </div>
+
+</aside>
+
+<main class="main">
+
+<div class="topbar">
+
+  <div>
+
+    <h2>Laporan Keuangan 3 Bulanan</h2>
+
+    <p id="periodLabel">
+      SPPG • Periode belum diisi
+    </p>
+
+  </div>
+
+  <div class="actions">
+
+    <button class="btn btn-light" onclick="saveData()">
+      💾 Simpan
+    </button>
+
+    <button class="btn btn-light" onclick="loadData()">
+      ↻ Muat
+    </button>
+
+    <button class="btn btn-danger" onclick="resetData()">
+      Reset
+    </button>
+
+    <button class="btn btn-primary" onclick="generatePDF()">
+      📄 Generate PDF
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- =========================
+     DASHBOARD
+========================= -->
+
+<section id="dashboard" class="section active">
+
+<div class="grid">
+
+  <div class="stat blue span-3">
+    <small>Saldo Awal</small>
+    <strong id="dashSaldoAwal">Rp0</strong>
+  </div>
+
+  <div class="stat green span-3">
+    <small>Total Dana Masuk</small>
+    <strong id="dashDanaMasuk">Rp0</strong>
+  </div>
+
+  <div class="stat orange span-3">
+    <small>Total Pengeluaran</small>
+    <strong id="dashPengeluaran">Rp0</strong>
+  </div>
+
+  <div class="stat red span-3">
+    <small>Saldo Akhir</small>
+    <strong id="dashSaldoAkhir">Rp0</strong>
+  </div>
+
+
+  <div class="card span-8">
+
+    <h3>Ringkasan Periode</h3>
+
+    <div class="table-wrap">
+
+      <table>
+
+        <tbody>
+
+          <tr>
+            <td>Total Porsi</td>
+            <td class="right" id="dashPorsi">0</td>
+          </tr>
+
+          <tr>
+            <td>Total Biaya Bahan</td>
+            <td class="right" id="dashBahan">Rp0</td>
+          </tr>
+
+          <tr>
+            <td>Food Cost / Porsi</td>
+            <td class="right" id="dashFoodCost">Rp0</td>
+          </tr>
+
+          <tr>
+            <td>Total Hari Produksi</td>
+            <td class="right" id="dashHari">0</td>
+          </tr>
+
+          <tr>
+            <td>Saldo Bank</td>
+            <td class="right" id="dashBank">Rp0</td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+
+  <div class="card span-4">
+
+    <h3>Status Data</h3>
+
+    <p class="muted">
+      Isi seluruh bagian yang relevan.
+      Angka pada dashboard dihitung otomatis.
+    </p>
+
+    <br>
+
+    <span class="badge">
+      SIAP DIGENERATE PDF
+    </span>
+
+  </div>
+
+</div>
+
+</section>
+
+
+<!-- =========================
+     INFORMASI
+========================= -->
+
+<section id="informasi" class="section">
+
+<div class="card">
+
+<h3>Informasi SPPG</h3>
+
+<div class="form-grid">
+
+  <div class="field">
+    <label>Nama SPPG</label>
+    <input
+      id="namaSPPG"
+      placeholder="Contoh: SPPG Magelang Muntilan Gunungpring 01"
+    >
+  </div>
+
+  <div class="field">
+    <label>Lokasi</label>
+    <input
+      id="lokasiSPPG"
+      placeholder="Desa / Kecamatan / Kabupaten"
+    >
+  </div>
+
+  <div class="field">
+    <label>Periode</label>
+    <input
+      id="periode"
+      placeholder="Juli - September 2026"
+    >
+  </div>
+
+  <div class="field">
+    <label>Penanggung Jawab</label>
+    <input id="penanggungJawab">
+  </div>
+
+  <div class="field">
+    <label>Jabatan</label>
+    <input id="jabatan">
+  </div>
+
+  <div class="field">
+    <label>Tanggal Laporan</label>
+    <input id="tanggalLaporan" type="date">
+  </div>
+
+  <div class="field full">
+    <label>Catatan Umum</label>
+
+    <textarea
+      id="catatanUmum"
+      placeholder="Catatan penting terkait periode laporan..."
+    ></textarea>
+
+  </div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =========================
+     DANA
+========================= -->
+
+<section id="dana" class="section">
+
+<div class="grid">
+
+<div class="card span-4">
+
+<h3>Saldo Awal</h3>
+
+<label>Saldo awal periode</label>
+
+<input
+  id="saldoAwal"
+  class="money-input"
+  type="text"
+  inputmode="numeric"
+  value="0"
+  oninput="updateAll()"
+>
+
+</div>
+
+
+<div class="card span-8">
+
+<h3>Rekap Dana Masuk</h3>
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+
+<tr>
+  <th>Tanggal</th>
+  <th>Sumber/Keterangan</th>
+  <th>Nominal</th>
+  <th></th>
+</tr>
+
+</thead>
+
+<tbody id="danaBody"></tbody>
+
+<tfoot>
+
+<tr class="total-row">
+
+<td colspan="2">
+  TOTAL DANA MASUK
+</td>
+
+<td class="right" id="totalDanaMasuk">
+  Rp0
+</td>
+
+<td></td>
+
+</tr>
+
+</tfoot>
+
+</table>
+
+</div>
+
+<br>
+
+<button
+  class="btn btn-light"
+  onclick="addDana()"
+>
++ Tambah Dana Masuk
+</button>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =========================
+     PENGELUARAN
+========================= -->
+
+<section id="pengeluaran" class="section">
+
+<div class="card">
+
+<h3>Pengeluaran SPPG</h3>
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+
+<tr>
+  <th>Tanggal</th>
+  <th>Kategori</th>
+  <th>Uraian</th>
+  <th>Supplier/Penerima</th>
+  <th>Nominal</th>
+  <th>No. Bukti</th>
+  <th></th>
+</tr>
+
+</thead>
+
+<tbody id="pengeluaranBody"></tbody>
+
+<tfoot>
+
+<tr class="total-row">
+
+<td colspan="4">
+  TOTAL PENGELUARAN
+</td>
+
+<td class="right" id="totalPengeluaran">
+  Rp0
+</td>
+
+<td colspan="2"></td>
+
+</tr>
+
+</tfoot>
+
+</table>
+
+</div>
+
+<br>
+
+<button
+  class="btn btn-light"
+  onclick="addPengeluaran()"
+>
++ Tambah Pengeluaran
+</button>
+
+
+<div style="margin-top:20px">
+
+<h3>Rekap Pengeluaran per Kategori</h3>
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+
+<tr>
+  <th>Kategori</th>
+  <th class="right">Jumlah</th>
+</tr>
+
+</thead>
+
+<tbody id="categorySummary"></tbody>
+
+<tfoot>
+
+<tr class="total-row">
+
+<td>TOTAL</td>
+
+<td
+  class="right"
+  id="categorySummaryTotal"
+>
+Rp0
+</td>
+
+</tr>
+
+</tfoot>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =========================
+     PRODUKSI
+========================= -->
+
+<section id="produksi" class="section">
+
+<div class="card">
+
+<h3>Produksi & Food Cost</h3>
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+
+<tr>
+  <th>Tanggal</th>
+  <th>Menu</th>
+  <th>Porsi</th>
+  <th>Biaya Bahan</th>
+  <th>Food Cost/Porsi</th>
+  <th>Catatan</th>
+  <th></th>
+</tr>
+
+</thead>
+
+<tbody id="produksiBody"></tbody>
+
+<tfoot>
+
+<tr class="total-row">
+
+<td colspan="2">
+  TOTAL
+</td>
+
+<td class="right" id="totalPorsi">
+  0
+</td>
+
+<td class="right" id="totalBiayaBahan">
+  Rp0
+</td>
+
+<td class="right" id="avgFoodCost">
+  Rp0
+</td>
+
+<td colspan="2"></td>
+
+</tr>
+
+</tfoot>
+
+</table>
+
+</div>
+
+<br>
+
+<button
+  class="btn btn-light"
+  onclick="addProduksi()"
+>
++ Tambah Produksi
+</button>
+
+</div>
+
+</section>
+
+
+<!-- =========================
+     PERSEDIAAN
+========================= -->
+
+<section id="persediaan" class="section">
+
+<div class="card">
+
+<h3>Persediaan</h3>
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+
+<tr>
+  <th>Nama Barang</th>
+  <th>Satuan</th>
+  <th>Saldo Awal</th>
+  <th>Pembelian</th>
+  <th>Pemakaian</th>
+  <th>Saldo Akhir</th>
+  <th>Keterangan</th>
+  <th></th>
+</tr>
+
+</thead>
+
+<tbody id="persediaanBody"></tbody>
+
+</table>
+
+</div>
+
+<br>
+
+<button
+  class="btn btn-light"
+  onclick="addPersediaan()"
+>
++ Tambah Persediaan
+</button>
+
+</div>
+
+</section>
+
+
+<!-- =========================
+     ASET
+========================= -->
+
+<section id="aset" class="section">
+
+<div class="card">
+
+<h3>Daftar Aset</h3>
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+
+<tr>
+  <th>Nama Aset</th>
+  <th>Tanggal Perolehan</th>
+  <th>Nilai Perolehan</th>
+  <th>Kondisi</th>
+  <th>Lokasi</th>
+  <th></th>
+</tr>
+
+</thead>
+
+<tbody id="asetBody"></tbody>
+
+<tfoot>
+
+<tr class="total-row">
+
+<td colspan="2">
+  TOTAL NILAI ASET
+</td>
+
+<td class="right" id="totalAset">
+  Rp0
+</td>
+
+<td colspan="3"></td>
+
+</tr>
+
+</tfoot>
+
+</table>
+
+</div>
+
+<br>
+
+<button
+  class="btn btn-light"
+  onclick="addAset()"
+>
++ Tambah Aset
+</button>
+
+</div>
+
+</section>
+
+
+<!-- =========================
+     REKONSILIASI
+========================= -->
+
+<section id="rekonsiliasi" class="section">
+
+<div class="card">
+
+<h3>Rekonsiliasi Bank</h3>
+
+<div class="form-grid">
+
+<div class="field">
+
+<label>Saldo Menurut Buku</label>
+
+<input
+  id="saldoBuku"
+  class="money-input"
+  type="text"
+  inputmode="numeric"
+  value="0"
+  oninput="updateAll()"
+>
+
+</div>
+
+
+<div class="field">
+
+<label>Saldo Menurut Bank</label>
+
+<input
+  id="saldoBank"
+  class="money-input"
+  type="text"
+  inputmode="numeric"
+  value="0"
+  oninput="updateAll()"
+>
+
+</div>
+
+
+<div class="field">
+
+<label>Selisih</label>
+
+<input
+  id="selisihBank"
+  type="text"
+  readonly
+>
+
+</div>
+
+
+<div class="field full">
+
+<label>Penjelasan Selisih</label>
+
+<textarea
+  id="penjelasanSelisih"
+  placeholder="Jelaskan transaksi yang belum tercatat / biaya bank / outstanding transfer, jika ada."
+></textarea>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =========================
+     CATATAN
+========================= -->
+
+<section id="catatan" class="section">
+
+<div class="card">
+
+<h3>Catatan & Kesimpulan</h3>
+
+<textarea
+  id="kesimpulan"
+  style="min-height:220px"
+  placeholder="Tuliskan kesimpulan laporan, temuan, atau catatan lainnya..."
+></textarea>
+
+</div>
+
+</section>
+
+
+<footer>
+  Daily Report SPPG Andromedha © 2026
+</footer>
+
+</main>
+
+</div>
+
+
+<div id="printArea"></div>
+
+
+<script>
+
+/* =========================================================
+   UTILITIES
+========================================================= */
+
+const $ = id => document.getElementById(id);
+
+
+const rupiah = n =>
+  new Intl.NumberFormat(
+    'id-ID',
+    {
+      style:'currency',
+      currency:'IDR',
+      maximumFractionDigits:0
+    }
+  ).format(Number(n) || 0);
+
+
+const num = v => {
+
+  if(
+    v === null ||
+    v === undefined ||
+    v === ''
+  ){
+    return 0;
+  }
+
+  const n = String(v)
+    .replace(/[^0-9-]/g,'');
+
+  return Number(n) || 0;
+};
+
+
+function formatMoneyInput(el){
+
+  const n = num(el.value);
+
+  el.value = n
+    ? ('Rp ' + n.toLocaleString('id-ID'))
+    : '';
+
+}
+
+
+function setupMoneyInputs(root=document){
+
+  root.querySelectorAll('.money-input')
+  .forEach(el => {
+
+    if(el.dataset.moneyReady){
+      return;
+    }
+
+    el.dataset.moneyReady = '1';
+
+    el.type = 'text';
+
+    el.inputMode = 'numeric';
+
+    el.addEventListener(
+      'focus',
+      () => {
+
+        const value = num(el.value);
+
+        el.value = value
+          ? String(value)
+          : '';
+
+      }
+    );
+
+
+    el.addEventListener(
+      'input',
+      () => {
+
+        const digits =
+          String(el.value)
+          .replace(/[^0-9]/g,'');
+
+        el.value = digits
+          ? ('Rp ' + Number(digits).toLocaleString('id-ID'))
+          : '';
+
+        updateAll();
+
+      }
+    );
+
+
+    el.addEventListener(
+      'blur',
+      () => {
+
+        formatMoneyInput(el);
+
+      }
+    );
+
+
+    if(el.value){
+      formatMoneyInput(el);
+    }
+
+  });
+
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+document
+.querySelectorAll('.nav button')
+.forEach(btn => {
+
+  btn.addEventListener(
+    'click',
+    () => {
+
+      document
+      .querySelectorAll('.nav button')
+      .forEach(x =>
+        x.classList.remove('active')
+      );
+
+      document
+      .querySelectorAll('.section')
+      .forEach(x =>
+        x.classList.remove('active')
+      );
+
+      btn.classList.add('active');
+
+      $(btn.dataset.section)
+      .classList.add('active');
+
+    }
+  );
+
+});
+
+
+/* =========================================================
+   ROW
+========================================================= */
+
+function rowInput(type){
+
+  const tr = document.createElement('tr');
+
+  tr.dataset.type = type;
+
+  return tr;
+
+}
+
+
+function removeRow(btn){
+
+  btn.closest('tr').remove();
+
+  updateAll();
+
+}
+
+
+/* =========================================================
+   DANA
+========================================================= */
+
+function addDana(data={}){
+
+  const tr = rowInput('dana');
+
+  tr.innerHTML = `
+
+    <td>
+      <input
+        class="table-input d-date"
+        type="date"
+        value="${data.date || ''}"
+      >
+    </td>
+
+    <td>
+      <input
+        class="table-input d-desc"
+        value="${data.desc || ''}"
+        placeholder="Dana masuk"
+      >
+    </td>
+
+    <td>
+      <input
+        class="table-input money-input d-nominal"
+        type="text"
+        inputmode="numeric"
+        value="${data.nominal || 0}"
+        oninput="updateAll()"
+      >
+    </td>
+
+    <td>
+      <button
+        class="btn btn-danger"
+        onclick="removeRow(this)"
+      >
+        Hapus
+      </button>
+    </td>
+
+  `;
+
+  $('danaBody').appendChild(tr);
+
+  setupMoneyInputs(tr);
+
+  updateAll();
+
+}
+
+
+/* =========================================================
+   PENGELUARAN
+========================================================= */
+
+function addPengeluaran(data={}){
+
+  const tr = rowInput('pengeluaran');
+
+  tr.innerHTML = `
+
+    <td>
+      <input
+        class="table-input p-date"
+        type="date"
+        value="${data.date || ''}"
+      >
+    </td>
+
+    <td>
+
+      <select class="table-input p-cat">
+
+        <option ${data.cat==='Bahan Makanan'?'selected':''}>
+          Bahan Makanan
+        </option>
+
+        <option ${data.cat==='Operasional'?'selected':''}>
+          Operasional
+        </option>
+
+        <option ${data.cat==='Gaji/Honor'?'selected':''}>
+          Gaji/Honor
+        </option>
+
+        <option ${data.cat==='Sarana & Prasarana'?'selected':''}>
+          Sarana & Prasarana
+        </option>
+
+        <option ${data.cat==='Transportasi'?'selected':''}>
+          Transportasi
+        </option>
+
+        <option ${data.cat==='Lainnya'?'selected':''}>
+          Lainnya
+        </option>
+
+      </select>
+
+    </td>
+
+    <td>
+
+      <input
+        class="table-input p-desc"
+        value="${data.desc || ''}"
+        placeholder="Uraian"
+      >
+
+    </td>
+
+    <td>
+
+      <input
+        class="table-input p-supplier"
+        value="${data.supplier || ''}"
+        placeholder="Supplier/Penerima"
+      >
+
+    </td>
+
+    <td>
+
+      <input
+        class="table-input money-input p-nominal"
+        type="text"
+        inputmode="numeric"
+        value="${data.nominal || 0}"
+        oninput="updateAll()"
+      >
+
+    </td>
+
+    <td>
+
+      <input
+        class="table-input p-proof"
+        value="${data.proof || ''}"
+        placeholder="No. bukti"
+      >
+
+    </td>
+
+    <td>
+
+      <button
+        class="btn btn-danger"
+        onclick="removeRow(this)"
+      >
+        Hapus
+      </button>
+
+    </td>
+
+  `;
+
+  $('pengeluaranBody')
+  .appendChild(tr);
+
+  setupMoneyInputs(tr);
+
+  updateAll();
+
+}
+
+
+/* =========================================================
+   PRODUKSI
+========================================================= */
+
+function addProduksi(data={}){
+
+  const tr = rowInput('produksi');
+
+  tr.innerHTML = `
+
+    <td>
+
+      <input
+        class="table-input pr-date"
+        type="date"
+        value="${data.date || ''}"
+      >
+
+    </td>
+
+    <td>
+
+      <input
+        class="table-input pr-menu"
+        value="${data.menu || ''}"
+        placeholder="Menu"
+      >
+
+    </td>
+
+    <td>
+
+      <input
+        class="table-input pr-porsi"
+        type="number"
+        value="${data.porsi || 0}"
+        oninput="updateAll()"
+      >
+
+    </td>
+
+    <td>
+
+      <input
+        class="table-input money-input pr-biaya"
+        type="text"
+        inputmode="numeric"
+        value="${data.biaya || 0}"
+        oninput="updateAll()"
+      >
+
+    </td>
+
+    <td class="right pr-food">
+      Rp0
+    </td>
+
+    <td>
+
+      <input
+        class="table-input pr-catatan"
+        value="${data.catatan || ''}"
+      >
+
+    </td>
+
+    <td>
+
+      <button
+        class="btn btn-danger"
+        onclick="removeRow(this)"
+      >
+        Hapus
+      </button>
+
+    </td>
+
+  `;
+
+  $('produksiBody')
+  .appendChild(tr);
+
+  setupMoneyInputs(tr);
+
+  updateAll();
+
+}
+
+
+/* =========================================================
+   PERSEDIAAN
+========================================================= */
+
+function addPersediaan(data={}){
+
+  const tr = rowInput('persediaan');
+
+  tr.innerHTML = `
+
+    <td>
+
+      <input
+        class="table-input s-name"
+        value="${data.name || ''}"
+      >
+
+    </td>
+
+    <td>
+
+      <input
+        class="table-input s-unit"
+        value="${data.unit || ''}"
+      >
+
+    </td>
+
+    <td>
+
+      <input
+        class="table-input s-awal"
+        type="number"
+        value="${data.awal || 0}"
+        oninput="updateAll()"
+      >
+
+    </td>
+
+    <td>
+
+      <input
+        class="table-input s-beli"
+        type="number"
+        value="${data.beli || 0}"
+        oninput="updateAll()"
+      >
+
+    </td>
+
+    <td>
+
+      <input
+        class="table-input s-pakai"
+        type="number"
+        value="${data.pakai || 0}"
+        oninput="updateAll()"
+      >
+
+    </td>
+
+    <td class="right s-akhir">
+      0
+    </td>
+
+    <td>
+
+      <input
+        class="table-input s-catatan"
+        value="${data.catatan || ''}"
+      >
+
+    </td>
+
+    <td>
+
+      <button
+        class="btn btn-danger"
+        onclick="removeRow(this)"
+      >
+        Hapus
+      </button>
+
+    </td>
+
+  `;
+
+  $('persediaanBody')
+  .appendChild(tr);
+
+  updateAll();
+
+}
+
+
+/* =========================================================
+   ASET
+========================================================= */
+
+function addAset(data={}){
+
+  const tr = rowInput('aset');
+
+  tr.innerHTML = `
+
+    <td>
+
+      <input
+        class="table-input a-name"
+        value="${data.name || ''}"
+      >
+
+    </td>
+
+    <td>
+
+      <input
+        class="table-input a-date"
+        type="date"
+        value="${data.date || ''}"
+      >
+
+    </td>
+
+    <td>
+
+      <input
+        class="table-input money-input a-value"
+        type="text"
+        inputmode="numeric"
+        value="${data.value || 0}"
+        oninput="updateAll()"
+      >
+
+    </td>
+
+    <td>
+
+      <select class="table-input a-cond">
+
+        <option>
+          Baik
+        </option>
+
+        <option ${data.cond==='Perlu Perbaikan'?'selected':''}>
+          Perlu Perbaikan
+        </option>
+
+        <option ${data.cond==='Rusak'?'selected':''}>
+          Rusak
+        </option>
+
+      </select>
+
+    </td>
+
+    <td>
+
+      <input
+        class="table-input a-loc"
+        value="${data.loc || ''}"
+      >
+
+    </td>
+
+    <td>
+
+      <button
+        class="btn btn-danger"
+        onclick="removeRow(this)"
+      >
+        Hapus
+      </button>
+
+    </td>
+
+  `;
+
+  $('asetBody')
+  .appendChild(tr);
+
+  setupMoneyInputs(tr);
+
+  updateAll();
+
+}
+
+
+/* =========================================================
+   UPDATE ALL
+========================================================= */
+
+function updateAll(){
+
+  /* DANA */
+
+  let dana = 0;
+
+  document
+  .querySelectorAll('.d-nominal')
+  .forEach(x => {
+
+    dana += num(x.value);
+
+  });
+
+
+  /* PENGELUARAN */
+
+  let peng = 0;
+
+  document
+  .querySelectorAll('.p-nominal')
+  .forEach(x => {
+
+    peng += num(x.value);
+
+  });
+
+
+  /* PRODUKSI */
+
+  let porsi = 0;
+
+  let bahan = 0;
+
+  document
+  .querySelectorAll('#produksiBody tr')
+  .forEach(tr => {
+
+    const p =
+      num(
+        tr.querySelector('.pr-porsi')?.value
+      );
+
+    const b =
+      num(
+        tr.querySelector('.pr-biaya')?.value
+      );
+
+    porsi += p;
+
+    bahan += b;
+
+    const el =
+      tr.querySelector('.pr-food');
+
+    if(el){
+
+      el.textContent =
+        rupiah(
+          p > 0
+            ? b / p
+            : 0
+        );
+
+    }
+
+  });
+
+
+  /* PERSEDIAAN */
+
+  document
+  .querySelectorAll('#persediaanBody tr')
+  .forEach(tr => {
+
+    const awal =
+      num(
+        tr.querySelector('.s-awal')?.value
+      );
+
+    const beli =
+      num(
+        tr.querySelector('.s-beli')?.value
+      );
+
+    const pakai =
+      num(
+        tr.querySelector('.s-pakai')?.value
+      );
+
+    const akhir =
+      awal + beli - pakai;
+
+    const el =
+      tr.querySelector('.s-akhir');
+
+    if(el){
+
+      el.textContent =
+        akhir.toLocaleString('id-ID');
+
+    }
+
+  });
+
+
+  /* ASET */
+
+  let aset = 0;
+
+  document
+  .querySelectorAll('.a-value')
+  .forEach(x => {
+
+    aset += num(x.value);
+
+  });
+
+
+  /* SALDO */
+
+  const awal =
+    num(
+      $('saldoAwal').value
+    );
+
+  const akhir =
+    awal +
+    dana -
+    peng;
+
+
+  /* TOTAL */
+
+  $('totalDanaMasuk').textContent =
+    rupiah(dana);
+
+  $('totalPengeluaran').textContent =
+    rupiah(peng);
+
+
+  /* CATEGORY */
+
+  const cats = {};
+
+  document
+  .querySelectorAll('#pengeluaranBody tr')
+  .forEach(tr => {
+
+    const c =
+      tr.querySelector('.p-cat')?.value
+      || 'Lainnya';
+
+    cats[c] =
+      (cats[c] || 0) +
+      num(
+        tr.querySelector('.p-nominal')?.value
+      );
+
+  });
+
+
+  $('categorySummary').innerHTML =
+    Object.entries(cats)
+    .map(
+      ([c,v]) => `
+        <tr>
+          <td>${esc(c)}</td>
+          <td class="right">
+            ${rupiah(v)}
+          </td>
+        </tr>
+      `
+    )
+    .join('')
+    ||
+    `
+      <tr>
+        <td colspan="2" class="empty">
+          Belum ada pengeluaran
+        </td>
+      </tr>
+    `;
+
+
+  $('categorySummaryTotal').textContent =
+    rupiah(peng);
+
+
+  /* PRODUKSI */
+
+  $('totalPorsi').textContent =
+    porsi.toLocaleString('id-ID');
+
+  $('totalBiayaBahan').textContent =
+    rupiah(bahan);
+
+  $('avgFoodCost').textContent =
+    rupiah(
+      porsi > 0
+        ? bahan / porsi
+        : 0
+    );
+
+
+  /* ASET */
+
+  $('totalAset').textContent =
+    rupiah(aset);
+
+
+  /* DASHBOARD */
+
+  $('dashSaldoAwal').textContent =
+    rupiah(awal);
+
+  $('dashDanaMasuk').textContent =
+    rupiah(dana);
+
+  $('dashPengeluaran').textContent =
+    rupiah(peng);
+
+  $('dashSaldoAkhir').textContent =
+    rupiah(akhir);
+
+  $('dashPorsi').textContent =
+    porsi.toLocaleString('id-ID');
+
+  $('dashBahan').textContent =
+    rupiah(bahan);
+
+  $('dashFoodCost').textContent =
+    rupiah(
+      porsi > 0
+        ? bahan / porsi
+        : 0
+    );
+
+
+  /* HARI PRODUKSI */
+
+  const tanggalProduksi =
+    [
+      ...document.querySelectorAll('.pr-date')
+    ]
+    .map(x => x.value)
+    .filter(Boolean);
+
+  $('dashHari').textContent =
+    new Set(tanggalProduksi).size;
+
+
+  /* BANK */
+
+  $('dashBank').textContent =
+    rupiah(
+      num(
+        $('saldoBank').value
+      )
+    );
+
+
+  /* SELISIH BANK */
+
+  const saldoBuku =
+    num(
+      $('saldoBuku').value
+    );
+
+  const saldoBank =
+    num(
+      $('saldoBank').value
+    );
+
+  $('selisihBank').value =
+    rupiah(
+      saldoBank - saldoBuku
+    );
+
+
+  /* PERIOD LABEL */
+
+  $('periodLabel').textContent =
+    ($('namaSPPG').value || 'SPPG')
+    +
+    ' • '
+    +
+    (
+      $('periode').value
+      ||
+      'Periode belum diisi'
+    );
+
+}
+
+
+/* =========================================================
+   SERIALIZE
+========================================================= */
+
+function serializeRows(selector,fields){
+
+  return [
+    ...document.querySelectorAll(selector)
+  ]
+  .map(tr =>
+    Object.fromEntries(
+      fields.map(
+        f => [
+          f,
+          tr.querySelector('.'+f)?.value || ''
+        ]
+      )
+    )
+  );
+
+}
+
+
+/* =========================================================
+   GET DATA
+========================================================= */
+
+function getData(){
+
+  return {
+
+    info:{
+
+      namaSPPG:
+        $('namaSPPG').value,
+
+      lokasiSPPG:
+        $('lokasiSPPG').value,
+
+      periode:
+        $('periode').value,
+
+      penanggungJawab:
+        $('penanggungJawab').value,
+
+      jabatan:
+        $('jabatan').value,
+
+      tanggalLaporan:
+        $('tanggalLaporan').value,
+
+      catatanUmum:
+        $('catatanUmum').value,
+
+      kesimpulan:
+        $('kesimpulan').value
+
+    },
+
+    saldoAwal:
+      $('saldoAwal').value,
+
+    saldoBuku:
+      $('saldoBuku').value,
+
+    saldoBank:
+      $('saldoBank').value,
+
+    penjelasanSelisih:
+      $('penjelasanSelisih').value,
+
+    dana:
+      serializeRows(
+        '#danaBody tr',
+        [
+          'd-date',
+          'd-desc',
+          'd-nominal'
+        ]
+      ),
+
+    pengeluaran:
+      serializeRows(
+        '#pengeluaranBody tr',
+        [
+          'p-date',
+          'p-cat',
+          'p-desc',
+          'p-supplier',
+          'p-nominal',
+          'p-proof'
+        ]
+      ),
+
+    produksi:
+      serializeRows(
+        '#produksiBody tr',
+        [
+          'pr-date',
+          'pr-menu',
+          'pr-porsi',
+          'pr-biaya',
+          'pr-catatan'
+        ]
+      ),
+
+    persediaan:
+      serializeRows(
+        '#persediaanBody tr',
+        [
+          's-name',
+          's-unit',
+          's-awal',
+          's-beli',
+          's-pakai',
+          's-catatan'
+        ]
+      ),
+
+    aset:
+      serializeRows(
+        '#asetBody tr',
+        [
+          'a-name',
+          'a-date',
+          'a-value',
+          'a-cond',
+          'a-loc'
+        ]
+      )
+
+  };
+
+}
+
+
+/* =========================================================
+   SAVE
+========================================================= */
+
+function saveData(){
+
+  localStorage.setItem(
+    'sppgFinancialReport',
+    JSON.stringify(getData())
+  );
+
+  alert(
+    'Data berhasil disimpan di browser.'
+  );
+
+}
+
+
+/* =========================================================
+   LOAD
+========================================================= */
+
+function loadData(){
+
+  const d =
+    JSON.parse(
+      localStorage.getItem(
+        'sppgFinancialReport'
+      ) || 'null'
+    );
+
+
+  if(!d){
+
+    alert(
+      'Belum ada data tersimpan.'
+    );
+
+    return;
+
+  }
+
+
+  for(
+    const [k,v]
+    of Object.entries(d.info || {})
+  ){
+
+    if($(k)){
+      $(k).value = v;
+    }
+
+  }
+
+
+  $('saldoAwal').value =
+    d.saldoAwal || 0;
+
+  $('saldoBuku').value =
+    d.saldoBuku || 0;
+
+  $('saldoBank').value =
+    d.saldoBank || 0;
+
+  $('penjelasanSelisih').value =
+    d.penjelasanSelisih || '';
+
+
+  [
+    'danaBody',
+    'pengeluaranBody',
+    'produksiBody',
+    'persediaanBody',
+    'asetBody'
+  ]
+  .forEach(id => {
+
+    $(id).innerHTML = '';
+
+  });
+
+
+  (d.dana || [])
+  .forEach(x =>
+    addDana({
+      date:x['d-date'],
+      desc:x['d-desc'],
+      nominal:x['d-nominal']
+    })
+  );
+
+
+  (d.pengeluaran || [])
+  .forEach(x =>
+    addPengeluaran({
+      date:x['p-date'],
+      cat:x['p-cat'],
+      desc:x['p-desc'],
+      supplier:x['p-supplier'],
+      nominal:x['p-nominal'],
+      proof:x['p-proof']
+    })
+  );
+
+
+  (d.produksi || [])
+  .forEach(x =>
+    addProduksi({
+      date:x['pr-date'],
+      menu:x['pr-menu'],
+      porsi:x['pr-porsi'],
+      biaya:x['pr-biaya'],
+      catatan:x['pr-catatan']
+    })
+  );
+
+
+  (d.persediaan || [])
+  .forEach(x =>
+    addPersediaan({
+      name:x['s-name'],
+      unit:x['s-unit'],
+      awal:x['s-awal'],
+      beli:x['s-beli'],
+      pakai:x['s-pakai'],
+      catatan:x['s-catatan']
+    })
+  );
+
+
+  (d.aset || [])
+  .forEach(x =>
+    addAset({
+      name:x['a-name'],
+      date:x['a-date'],
+      value:x['a-value'],
+      cond:x['a-cond'],
+      loc:x['a-loc']
+    })
+  );
+
+
+  setupMoneyInputs();
+
+  updateAll();
+
+
+  alert(
+    'Data berhasil dimuat.'
+  );
+
+}
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+function resetData(){
+
+  if(
+    !confirm(
+      'Hapus seluruh data laporan?'
+    )
+  ){
+    return;
+  }
+
+  localStorage.removeItem(
+    'sppgFinancialReport'
+  );
+
+  location.reload();
+
+}
+
+
+/* =========================================================
+   TABLE HTML FOR PDF
+========================================================= */
+
+function tableHTML(
+  headers,
+  rows,
+  totalLabel='',
+  totalValue=''
+){
+
+  const headerHTML =
+    headers
+    .map(
+      h => `<th>${esc(h)}</th>`
+    )
+    .join('');
+
+
+  const bodyHTML =
+    rows.length
+
+    ?
+
+    rows
+    .map(
+      row => `
+        <tr>
+          ${
+            row
+            .map(
+              cell =>
+                `<td>${cell ?? '-'}</td>`
+            )
+            .join('')
+          }
+        </tr>
+      `
+    )
+    .join('')
+
+    :
+
+    `
+      <tr>
+        <td
+          colspan="${headers.length}"
+          style="text-align:center"
+        >
+          Tidak ada data
+        </td>
+      </tr>
+    `;
+
+
+  const totalHTML =
+    totalLabel
+
+    ?
+
+    `
+      <tfoot>
+
+        <tr>
+
+          <td colspan="${headers.length - 1}">
+            <b>${esc(totalLabel)}</b>
+          </td>
+
+          <td style="text-align:right">
+            <b>${totalValue}</b>
+          </td>
+
+        </tr>
+
+      </tfoot>
+    `
+
+    :
+
+    '';
+
+
+  return `
+
+    <table>
+
+      <thead>
+
+        <tr>
+          ${headerHTML}
+        </tr>
+
+      </thead>
+
+      <tbody>
+        ${bodyHTML}
+      </tbody>
+
+      ${totalHTML}
+
+    </table>
+
+  `;
+
+}
+
+
+/* =========================================================
+   GENERATE PDF
+========================================================= */
+
+function generatePDF(){
+
+  /*
+    Pastikan seluruh nilai dihitung
+    sebelum PDF dibuat.
+  */
+
+  updateAll();
+
+
+  /*
+    Ambil SATU sumber data.
+    PDF tidak lagi mengambil nilai
+    dari DOM secara terpisah.
+  */
+
+  const d = getData();
+
+  const info =
+    d.info || {};
+
+
+  /* =========================
+     DATA DANA
+  ========================= */
+
+  const saldoAwal =
+    num(d.saldoAwal);
+
+
+  const danaRowsData =
+    (d.dana || [])
+    .map(x => ({
+
+      date:
+        x['d-date'] || '-',
+
+      desc:
+        x['d-desc'] || '-',
+
+      nominal:
+        num(x['d-nominal'])
+
+    }));
+
+
+  /* =========================
+     DATA PENGELUARAN
+  ========================= */
+
+  const pengeluaranRowsData =
+    (d.pengeluaran || [])
+    .map(x => ({
+
+      date:
+        x['p-date'] || '-',
+
+      cat:
+        x['p-cat'] || '-',
+
+      desc:
+        x['p-desc'] || '-',
+
+      supplier:
+        x['p-supplier'] || '-',
+
+      nominal:
+        num(x['p-nominal']),
+
+      proof:
+        x['p-proof'] || '-'
+
+    }));
+
+
+  /* =========================
+     DATA PRODUKSI
+  ========================= */
+
+  const produksiRowsData =
+    (d.produksi || [])
+    .map(x => ({
+
+      date:
+        x['pr-date'] || '-',
+
+      menu:
+        x['pr-menu'] || '-',
+
+      porsi:
+        num(x['pr-porsi']),
+
+      biaya:
+        num(x['pr-biaya']),
+
+      catatan:
+        x['pr-catatan'] || '-'
+
+    }));
+
+
+  /* =========================
+     DATA PERSEDIAAN
+  ========================= */
+
+  const persediaanRowsData =
+    (d.persediaan || [])
+    .map(x => ({
+
+      name:
+        x['s-name'] || '-',
+
+      unit:
+        x['s-unit'] || '-',
+
+      awal:
+        num(x['s-awal']),
+
+      beli:
+        num(x['s-beli']),
+
+      pakai:
+        num(x['s-pakai']),
+
+      catatan:
+        x['s-catatan'] || '-'
+
+    }));
+
+
+  /* =========================
+     DATA ASET
+  ========================= */
+
+  const asetRowsData =
+    (d.aset || [])
+    .map(x => ({
+
+      name:
+        x['a-name'] || '-',
+
+      date:
+        x['a-date'] || '-',
+
+      value:
+        num(x['a-value']),
+
+      cond:
+        x['a-cond'] || '-',
+
+      loc:
+        x['a-loc'] || '-'
+
+    }));
+
+
+  /* =========================
+     TOTAL
+  ========================= */
+
+  const totalDana =
+    danaRowsData.reduce(
+      (total,row) =>
+        total + row.nominal,
+      0
+    );
+
+
+  const totalPengeluaran =
+    pengeluaranRowsData.reduce(
+      (total,row) =>
+        total + row.nominal,
+      0
+    );
+
+
+  const totalPorsi =
+    produksiRowsData.reduce(
+      (total,row) =>
+        total + row.porsi,
+      0
+    );
+
+
+  const totalBiayaBahan =
+    produksiRowsData.reduce(
+      (total,row) =>
+        total + row.biaya,
+      0
+    );
+
+
+  const totalAset =
+    asetRowsData.reduce(
+      (total,row) =>
+        total + row.value,
+      0
+    );
+
+
+  const saldoAkhir =
+    saldoAwal +
+    totalDana -
+    totalPengeluaran;
+
+
+  const foodCostPerPorsi =
+    totalPorsi > 0
+      ? totalBiayaBahan / totalPorsi
+      : 0;
+
+
+  /* =========================
+     REKONSILIASI
+  ========================= */
+
+  const saldoBuku =
+    num(d.saldoBuku);
+
+  const saldoBank =
+    num(d.saldoBank);
+
+  const selisihBank =
+    saldoBank - saldoBuku;
+
+
+  /* =========================
+     FORMAT ROW DANA
+  ========================= */
+
+  const danaRows =
+    danaRowsData
+    .map(row => [
+
+      esc(row.date),
+
+      esc(row.desc),
+
+      rupiah(row.nominal)
+
+    ]);
+
+
+  /* =========================
+     FORMAT ROW PENGELUARAN
+  ========================= */
+
+  const pengRows =
+    pengeluaranRowsData
+    .map(row => [
+
+      esc(row.date),
+
+      esc(row.cat),
+
+      esc(row.desc),
+
+      esc(row.supplier),
+
+      rupiah(row.nominal),
+
+      esc(row.proof)
+
+    ]);
+
+
+  /* =========================
+     FORMAT ROW PRODUKSI
+  ========================= */
+
+  const prodRows =
+    produksiRowsData
+    .map(row => [
+
+      esc(row.date),
+
+      esc(row.menu),
+
+      row.porsi
+        .toLocaleString('id-ID'),
+
+      rupiah(row.biaya),
+
+      rupiah(
+        row.porsi > 0
+          ? row.biaya / row.porsi
+          : 0
+      )
+
+    ]);
+
+
+  /* =========================
+     FORMAT ROW PERSEDIAAN
+  ========================= */
+
+  const persRows =
+    persediaanRowsData
+    .map(row => {
+
+      const saldoAkhirPersediaan =
+        row.awal +
+        row.beli -
+        row.pakai;
+
+
+      return [
+
+        esc(row.name),
+
+        esc(row.unit),
+
+        row.awal
+          .toLocaleString('id-ID'),
+
+        row.beli
+          .toLocaleString('id-ID'),
+
+        row.pakai
+          .toLocaleString('id-ID'),
+
+        saldoAkhirPersediaan
+          .toLocaleString('id-ID')
+
+      ];
+
+    });
+
+
+  /* =========================
+     FORMAT ROW ASET
+  ========================= */
+
+  const asetRows =
+    asetRowsData
+    .map(row => [
+
+      esc(row.name),
+
+      esc(row.date),
+
+      rupiah(row.value),
+
+      esc(row.cond),
+
+      esc(row.loc)
+
+    ]);
+
+
+  /* =========================
+     PRINT AREA
+  ========================= */
+
+  $('printArea').innerHTML = `
+
+    <div class="pdf-header">
+
+      <h1>
+        LAPORAN KEUANGAN SPPG
+      </h1>
+
+      <h2>
+        ${esc(
+          info.namaSPPG ||
+          'Nama SPPG Belum Diisi'
+        )}
+      </h2>
+
+      <div>
+
+        ${esc(
+          info.lokasiSPPG || ''
+        )}
+
+        <br>
+
+        Periode:
+
+        <b>
+          ${esc(
+            info.periode || '-'
+          )}
+        </b>
+
+      </div>
+
+    </div>
+
+
+    <!-- A -->
+
+    <div class="pdf-section">
+
+      <h3>
+        A. INFORMASI SPPG
+      </h3>
+
+      <table>
+
+        <tr>
+
+          <td>
+            Penanggung Jawab
+          </td>
+
+          <td>
+            ${esc(
+              info.penanggungJawab || '-'
+            )}
+          </td>
+
+          <td>
+            Jabatan
+          </td>
+
+          <td>
+            ${esc(
+              info.jabatan || '-'
+            )}
+          </td>
+
+        </tr>
+
+        <tr>
+
+          <td>
+            Tanggal Laporan
+          </td>
+
+          <td colspan="3">
+
+            ${esc(
+              info.tanggalLaporan || '-'
+            )}
+
+          </td>
+
+        </tr>
+
+      </table>
+
+    </div>
+
+
+    <!-- B -->
+
+    <div class="pdf-section">
+
+      <h3>
+        B. RINGKASAN DANA
+      </h3>
+
+      ${tableHTML(
+        ['Keterangan','Nilai'],
+
+        [
+
+          [
+            'Saldo Awal',
+            rupiah(saldoAwal)
+          ],
+
+          [
+            'Dana Masuk',
+            rupiah(totalDana)
+          ],
+
+          [
+            'Total Pengeluaran',
+            rupiah(totalPengeluaran)
+          ],
+
+          [
+            'Saldo Akhir',
+            rupiah(saldoAkhir)
+          ]
+
+        ]
+      )}
+
+    </div>
+
+
+    <!-- C -->
+
+    <div class="pdf-section">
+
+      <h3>
+        C. DANA MASUK
+      </h3>
+
+      ${tableHTML(
+
+        [
+          'Tanggal',
+          'Keterangan',
+          'Nominal'
+        ],
+
+        danaRows,
+
+        'TOTAL DANA MASUK',
+
+        rupiah(totalDana)
+
+      )}
+
+    </div>
+
+
+    <!-- D -->
+
+    <div class="pdf-section">
+
+      <h3>
+        D. PENGELUARAN
+      </h3>
+
+      ${tableHTML(
+
+        [
+          'Tanggal',
+          'Kategori',
+          'Uraian',
+          'Supplier/Penerima',
+          'Nominal',
+          'No. Bukti'
+        ],
+
+        pengRows,
+
+        'TOTAL PENGELUARAN',
+
+        rupiah(totalPengeluaran)
+
+      )}
+
+    </div>
+
+
+    <!-- E -->
+
+    <div class="pdf-section">
+
+      <h3>
+        E. PRODUKSI & FOOD COST
+      </h3>
+
+      ${tableHTML(
+
+        [
+          'Tanggal',
+          'Menu',
+          'Porsi',
+          'Biaya Bahan',
+          'Food Cost/Porsi'
+        ],
+
+        prodRows,
+
+        'TOTAL PORSI',
+
+        totalPorsi
+          .toLocaleString('id-ID')
+
+      )}
+
+      <p style="margin-top:8px">
+
+        Total Biaya Bahan:
+
+        <b>
+          ${rupiah(totalBiayaBahan)}
+        </b>
+
+      </p>
+
+      <p style="margin-top:5px">
+
+        Rata-rata Food Cost/Porsi:
+
+        <b>
+          ${rupiah(foodCostPerPorsi)}
+        </b>
+
+      </p>
+
+    </div>
+
+
+    <!-- F -->
+
+    <div class="pdf-section">
+
+      <h3>
+        F. PERSEDIAAN
+      </h3>
+
+      ${tableHTML(
+
+        [
+          'Barang',
+          'Satuan',
+          'Saldo Awal',
+          'Pembelian',
+          'Pemakaian',
+          'Saldo Akhir'
+        ],
+
+        persRows
+
+      )}
+
+    </div>
+
+
+    <!-- G -->
+
+    <div class="pdf-section">
+
+      <h3>
+        G. ASET
+      </h3>
+
+      ${tableHTML(
+
+        [
+          'Nama Aset',
+          'Tanggal',
+          'Nilai Perolehan',
+          'Kondisi',
+          'Lokasi'
+        ],
+
+        asetRows,
+
+        'TOTAL NILAI ASET',
+
+        rupiah(totalAset)
+
+      )}
+
+    </div>
+
+
+    <!-- H -->
+
+    <div class="pdf-section">
+
+      <h3>
+        H. REKONSILIASI BANK
+      </h3>
+
+      ${tableHTML(
+
+        [
+          'Keterangan',
+          'Nilai'
+        ],
+
+        [
+
+          [
+            'Saldo Menurut Buku',
+            rupiah(saldoBuku)
+          ],
+
+          [
+            'Saldo Menurut Bank',
+            rupiah(saldoBank)
+          ],
+
+          [
+            'Selisih',
+            rupiah(selisihBank)
+          ]
+
+        ]
+
+      )}
+
+      <p style="margin-top:8px">
+
+        <b>
+          Penjelasan:
+        </b>
+
+        ${esc(
+          d.penjelasanSelisih || '-'
+        )}
+
+      </p>
+
+    </div>
+
+
+    <!-- I -->
+
+    <div class="pdf-section">
+
+      <h3>
+        I. CATATAN & KESIMPULAN
+      </h3>
+
+      <p>
+
+        ${esc(
+          info.catatanUmum || '-'
+        )}
+
+      </p>
+
+      <br>
+
+      <p>
+
+        ${esc(
+          info.kesimpulan || '-'
+        )}
+
+      </p>
+
+    </div>
+
+
+    <!-- SIGNATURE -->
+
+    <div class="signature">
+
+      <div>
+
+        <p>
+          Mengetahui,
+        </p>
+
+        <br><br><br>
+
+        <b>
+          ________________________
+        </b>
+
+        <br>
+
+        Penanggung Jawab
+
+      </div>
+
+
+      <div>
+
+        <p>
+
+          ${esc(
+            info.lokasiSPPG || ''
+          )},
+
+          ${esc(
+            info.tanggalLaporan || ''
+          )}
+
+        </p>
+
+        <br><br><br>
+
+        <b>
+          ________________________
+        </b>
+
+        <br>
+
+        ${esc(
+          info.penanggungJawab ||
+          'Penanggung Jawab'
+        )}
+
+      </div>
+
+    </div>
+
+  `;
+
+
+  window.print();
+
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function esc(s){
+
+  return String(
+    s ?? ''
+  )
+  .replace(
+    /[&<>"']/g,
+    m => ({
+
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;',
+      "'":'&#39;'
+
+    }[m])
+  );
+
+}
+
+
+/* =========================================================
+   LOCAL DATE
+========================================================= */
+
+const today =
+  new Date();
+
+const localDate =
+  today.getFullYear()
+  + '-'
+  + String(
+      today.getMonth() + 1
+    ).padStart(2,'0')
+  + '-'
+  + String(
+      today.getDate()
+    ).padStart(2,'0');
+
+
+$('tanggalLaporan').value =
+  localDate;
+
+
+/* =========================================================
+   EVENT LISTENERS
+========================================================= */
+
+[
+  'namaSPPG',
+  'lokasiSPPG',
+  'periode',
+  'penanggungJawab',
+  'jabatan',
+  'catatanUmum',
+  'saldoAwal',
+  'saldoBuku',
+  'saldoBank',
+  'penjelasanSelisih',
+  'kesimpulan'
+]
+.forEach(id => {
+
+  $(id)
+  .addEventListener(
+    'input',
+    updateAll
+  );
+
+});
+
+
+/* =========================================================
+   INITIALIZATION
+========================================================= */
+
+setupMoneyInputs();
+
+addDana();
+
+addPengeluaran();
+
+addProduksi();
+
+addPersediaan();
+
+addAset();
+
+setupMoneyInputs();
+
+updateAll();
+
+</script>
+
+</body>
+</html>
